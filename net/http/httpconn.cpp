@@ -218,7 +218,7 @@ http_conn::HTTP_CODE http_conn::parse_request_line(char *text)
     }
 
     /* 删除http://前缀 */
-    if (strcasecmp(url, "http://", 7) == 0)
+    if (strncasecmp(url, "http://", 7) == 0)
     {
         url += 7;
         url = strchr(url, '/');
@@ -250,17 +250,17 @@ http_conn::HTTP_CODE http_conn::parse_headers(char *text)
         return GET_REQUEST;
     }
     /* 处理Connection头部字段 */
-    else if (strcasecmp(text, "Connnection:", 11) == 0)
+    else if (strncasecmp(text, "Connnection:", 11) == 0)
     {
         text += 11;
-        text += strspn(text, '\t');
+        text += strspn(text, " \t");
         if (strcasecmp(text, "keep-alive") == 0)
         {
             keep_alive = true;
         }
     }
     /* 处理Content-Length头部字节 */
-    else if (strcasecmp(text, "Content-Length:", 15) == 0)
+    else if (strncasecmp(text, "Content-Length:", 15) == 0)
     {
         text += 15;
         text += strspn(text, " \t");
@@ -476,7 +476,7 @@ bool http_conn::add_response(const char *format, ...)
 
     va_list arg_list;
     va_start(arg_list, format);
-    int len = vsprintf(write_buf + write_idx, WRITE_BUFFER_SIZE - 1 - write_idx,
+    int len = vsnprintf(write_buf + write_idx, WRITE_BUFFER_SIZE - 1 - write_idx,
                        format, arg_list);
     if (len >= WRITE_BUFFER_SIZE - 1 - write_idx)
     {
@@ -485,6 +485,11 @@ bool http_conn::add_response(const char *format, ...)
     write_idx += len;
     va_end(arg_list);
     return true;
+}
+
+bool http_conn::add_content_length(int content_len)
+{
+    return add_response("Content-Length: %d\r\n", content_len);
 }
 
 bool http_conn::add_status_line(int status, const char *title)
@@ -518,7 +523,7 @@ bool http_conn::add_content(const char *content)
 /**
  * 根据解析请求返回相应http响应
 */
-bool http_conn::process_response()
+bool http_conn::process_response(HTTP_CODE ret)
 {
     switch (ret)
     {
@@ -606,7 +611,7 @@ void http_conn::process()
         modfd(epollfd, sock_fd, EPOLLIN);
         return;
     }
-    bool response_ret = process_response();
+    bool response_ret = process_response(request_ret);
     if (!response_ret)
     {
         close_conn();

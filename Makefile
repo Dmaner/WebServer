@@ -1,11 +1,11 @@
 CC = g++
 CPPFLAGES = -Wall
 target = server
-files = $(wildcard *.cpp) $(wildcard ./net/http/*.cpp)
+files = $(wildcard *.cpp) $(wildcard ./net/http/*.cpp) $(wildcard ./base/*.cpp)
 objs :=  $(patsubst %.cpp,%.o,$(files))
 
 $(target): $(objs)
-	$(CC) $(objs) $(CPPFLAGES) -o $(target)
+	$(CC) $(objs) $(CPPFLAGES) -o $(target) -lpthread
 
 %.o: %.cpp
 	$(CC) -c $< -o $@

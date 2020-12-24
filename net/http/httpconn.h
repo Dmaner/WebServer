@@ -16,6 +16,7 @@
 #include <stdio.h>
 #include <sys/mman.h>
 #include <stdarg.h>
+#include <stdlib.h>
 
 class http_conn
 {
@@ -102,8 +103,8 @@ public:
     static int epollfd;
     static int user_count;
 
-    http_conn();
-    ~http_conn();
+    http_conn() {}
+    ~http_conn() {}
 
 public:
     // 初始化连接
@@ -122,7 +123,7 @@ private:
     // 处理HTTP请求
     HTTP_CODE process_request();
     // 构建HTTP响应
-    bool process_response();
+    bool process_response(HTTP_CODE ret);
 
     /* 处理http请求报文 */
     HTTP_CODE parse_request_line(char *text);
