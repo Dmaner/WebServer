@@ -1,16 +1,15 @@
-CC = g++
-CPPFLAGES = -Wall
-target = server
-files = $(wildcard *.cpp) $(wildcard ./net/http/*.cpp) $(wildcard ./base/*.cpp)
-objs :=  $(patsubst %.cpp,%.o,$(files))
+CXX ?= g++
 
-$(target): $(objs)
-	$(CC) $(objs) $(CPPFLAGES) -o $(target) -lpthread
+DEBUG ?= 1
+ifeq ($(DEBUG), 1)
+    CXXFLAGS += -g
+else
+    CXXFLAGS += -O2
 
-%.o: %.cpp
-	$(CC) -c $< -o $@
+endif
 
-.PHONY: clean
+server: main.cpp  ./timer/lst_timer.cpp ./http/http_conn.cpp ./log/log.cpp ./CGImysql/sql_connection_pool.cpp  webserver.cpp config.cpp
+	$(CXX) -o server  $^ $(CXXFLAGS) -lpthread -lmysqlclient
 
-clean: 
-	rm -rf $(objs) $(target)
+clean:
+	rm  -r server
