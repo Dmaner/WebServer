@@ -15,9 +15,9 @@
 #include "./threadpool/threadpool.h"
 #include "./http/http_conn.h"
 
-const int MAX_FD = 65536;           //最大文件描述符
-const int MAX_EVENT_NUMBER = 10000; //最大事件数
-const int TIMESLOT = 5;             //最小超时单位
+const int MAX_FD = 65536;           /* 最大文件描述符 */
+const int MAX_EVENT_NUMBER = 10000; /* 最大事件数 */
+const int TIMESLOT = 5;             /* 最小超时单位 */
 
 class WebServer
 {
@@ -25,21 +25,22 @@ public:
     WebServer();
     ~WebServer();
 
-    void init(int port , string user, string passWord, string databaseName,
-              int log_write , int opt_linger, int trigmode, int sql_num,
+    /* 服务器初始化 */
+    void init(int port, string user, string passWord, string databaseName,
+              int log_write, int opt_linger, int trigmode, int sql_num,
               int thread_num, int close_log, int actor_model);
 
-    void thread_pool();
-    void sql_pool();
-    void log_write();
-    void trig_mode();
-    void eventListen();
+    void thread_pool(); /* 初始化线程池 */
+    void sql_pool();    /* 初始化数据库连接池 */
+    void log_write();   /* 初始化日志 */
+    void trig_mode();   /* 初始化触发模式 */
+    void eventListen(); /* 添加事件监听 */
     void eventLoop();
     void timer(int connfd, struct sockaddr_in client_address);
     void adjust_timer(util_timer *timer);
     void deal_timer(util_timer *timer, int sockfd);
     bool dealclinetdata();
-    bool dealwithsignal(bool& timeout, bool& stop_server);
+    bool dealwithsignal(bool &timeout, bool &stop_server);
     void dealwithread(int sockfd);
     void dealwithwrite(int sockfd);
 
@@ -70,9 +71,9 @@ public:
     epoll_event events[MAX_EVENT_NUMBER];
 
     int m_listenfd;
-    int m_OPT_LINGER;
+    int m_OPT_LINGER; /* socket关闭方式 */
     int m_TRIGMode;
-    int m_LISTENTrigmode;
+    int m_LISTENTrigmode; /* LT or ET */
     int m_CONNTrigmode;
 
     //定时器相关

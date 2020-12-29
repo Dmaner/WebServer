@@ -102,55 +102,68 @@ void WebServer::thread_pool()
 
 void WebServer::eventListen()
 {
-    //网络编程基础步骤
+    int ret, flag = 1;
+    struct sockaddr_in address;
+    epoll_event events[MAX_EVENT_NUMBER];
+
+    /* 初始化服务器socket */
     m_listenfd = socket(PF_INET, SOCK_STREAM, 0);
     assert(m_listenfd >= 0);
 
-    //优雅关闭连接
-    if (0 == m_OPT_LINGER)
+    /* 将未发送数据发送完再关闭 */
+    if (m_OPT_LINGER == 0)
     {
         struct linger tmp = {0, 1};
         setsockopt(m_listenfd, SOL_SOCKET, SO_LINGER, &tmp, sizeof(tmp));
     }
-    else if (1 == m_OPT_LINGER)
+    /* 强制断开 */
+    else if (m_OPT_LINGER == 1)
     {
         struct linger tmp = {1, 1};
         setsockopt(m_listenfd, SOL_SOCKET, SO_LINGER, &tmp, sizeof(tmp));
     }
 
-    int ret = 0;
-    struct sockaddr_in address;
+    /* 初始化struct socketaddr_in */
     bzero(&address, sizeof(address));
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = htonl(INADDR_ANY);
     address.sin_port = htons(m_port);
 
-    int flag = 1;
+    /* 设置可重用本地地址 */
     setsockopt(m_listenfd, SOL_SOCKET, SO_REUSEADDR, &flag, sizeof(flag));
+
+    /* 服务器绑定公有端口 */
     ret = bind(m_listenfd, (struct sockaddr *)&address, sizeof(address));
     assert(ret >= 0);
+
+    /* 开启监听模式 */
     ret = listen(m_listenfd, 5);
     assert(ret >= 0);
 
+    /* 设置超时单位 */
     utils.init(TIMESLOT);
 
-    //epoll创建内核事件表
-    epoll_event events[MAX_EVENT_NUMBER];
+    /* epoll创建内核事件表 */
     m_epollfd = epoll_create(5);
     assert(m_epollfd != -1);
 
+    /* 添加监听事件到事件表 */
     utils.addfd(m_epollfd, m_listenfd, false, m_LISTENTrigmode);
     http_conn::m_epollfd = m_epollfd;
 
+    /* 设置父子进程通信管道 */
     ret = socketpair(PF_UNIX, SOCK_STREAM, 0, m_pipefd);
     assert(ret != -1);
+
+    /* 添加信号事件 */
     utils.setnonblocking(m_pipefd[1]);
     utils.addfd(m_epollfd, m_pipefd[0], false, 0);
-
+    
     utils.addsig(SIGPIPE, SIG_IGN);
     utils.addsig(SIGALRM, utils.sig_handler, false);
     utils.addsig(SIGTERM, utils.sig_handler, false);
 
+    /* 设置超时事件 */
     alarm(TIMESLOT);
 
     //工具类,信号和描述符基础操作
