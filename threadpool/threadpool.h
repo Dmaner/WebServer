@@ -36,8 +36,8 @@ private:
 /* 创建并初始化线程 */
 template <typename T>
 threadpool<T>::threadpool(int actor_model, connection_pool *connPool, int thread_number, int max_requests)
-    : m_actor_model(actor_model), m_thread_number(thread_number), 
-    m_max_requests(max_requests), m_threads(NULL), m_connPool(connPool)
+    : m_actor_model(actor_model), m_thread_number(thread_number),
+      m_max_requests(max_requests), m_threads(NULL), m_connPool(connPool)
 {
     if (thread_number <= 0 || max_requests <= 0)
         throw std::exception();
@@ -122,6 +122,8 @@ void threadpool<T>::run()
         m_queuelocker.unlock();
         if (!request)
             continue;
+
+        /* Reactor模式 */
         if (m_actor_model == 1)
         {
             if (request->m_state == 0)
