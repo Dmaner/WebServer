@@ -1,17 +1,15 @@
-# WebServer
+# C++ 实现 Webserver
 
-c++实现轻量级WebServer
+> 用c++实现一个Linux下简易web服务器, 增加自己的网络编程能力
 
-- [ ] 状态机解析HTTP报文
+## 具体功能
 
-# 代码结构
+- [ ] 解析http报文
 
-# 运行
+## 运行环境
 
-```shell
-make
-```
+- Ubuntu 18.04
 
-# 参考
+## 如何运行
 
-[TinyWebServer](https://github.com/qinguoyi/TinyWebServer)
+## 参考
