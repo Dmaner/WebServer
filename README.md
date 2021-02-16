@@ -28,9 +28,7 @@ c++实现轻量级WebServer
 ## 运行
 
 ```shell
+make clean
 make server
+sudo ./server -p 80
 ```
-
-## 参考
-
-[TinyWebServer](https://github.com/qinguoyi/TinyWebServer)
