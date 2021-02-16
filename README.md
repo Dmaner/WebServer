@@ -2,16 +2,35 @@
 
 c++实现轻量级WebServer
 
-- [ ] 状态机解析HTTP报文
-
-# 代码结构
-
-# 运行
+## 代码结构
 
 ```shell
-make
+├── LICENSE
+├── Makefile
+├── README.md
+├── build.sh
+├── config.cpp
+├── config.h
+├── http
+├── lock
+├── log
+├── main.cpp
+├── mysql
+├── root
+├── server
+├── test_presure
+├── threadpool
+├── timer
+├── webserver.cpp
+└── webserver.h
 ```
 
-# 参考
+## 运行
+
+```shell
+make server
+```
+
+## 参考
 
 [TinyWebServer](https://github.com/qinguoyi/TinyWebServer)
